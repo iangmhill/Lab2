@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+
+    <!-- Main Layout -->
+    <dimen name = "main_output_divider">2dp</dimen>
+    <dimen name = "main_input_entry_padding">3dp</dimen>
+    <item name = "main_input_entry_weight" format = "float" type="dimen">0.7</item>
+    <item name = "main_input_button_weight" format = "float" type="dimen">0.3</item>
+
+    <!-- Main Text -->
+    <dimen name = "main_button">16sp</dimen>
+
+    <!-- Chat Item Layout -->
+    <dimen name = "chat_item_name_top">5dp</dimen>
+    <dimen name = "chat_item_img_padding">1dp</dimen>
+    <dimen name = "chat_item_img_margin_right">8dp</dimen>
+    <dimen name = "chat_item_time_margin_right">8dp</dimen>
+    <item name = "chat_item_img_weight" format = "float" type="dimen">0.20</item>
+    <item name = "chat_item_body_weight" format = "float" type="dimen">0.75</item>
+
+    <!-- Chat Item Text -->
+    <dimen name = "chat_item_name">24sp</dimen>
+    <dimen name = "chat_item_msg">16sp</dimen>
+    <dimen name = "chat_item_time">12sp</dimen>
+</resources>
