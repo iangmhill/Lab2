@@ -1,4 +1,4 @@
-package com.example.michael.lab2;
+package com.iangmhill.lab2;
 
 public class ChatModel implements Comparable {
     // class to contain chat message information
@@ -11,6 +11,13 @@ public class ChatModel implements Comparable {
         this.body = message;
         this.userId = userId;
         this.time = System.currentTimeMillis();
+    }
+    public ChatModel(Long time, String sender, String message, String userId){
+        // constructor to assign values
+        this.sender = sender;
+        this.body = message;
+        this.userId = userId;
+        this.time = time;
     }
 
     // compare times of objects

@@ -1,4 +1,4 @@
-package com.example.michael.lab2;
+package com.iangmhill.lab2;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -7,9 +7,11 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import java.util.ArrayList;
+
 public class ClickListeners {
 
-    public static View.OnClickListener sendButtonListener(final Activity activity, final ChatAdapter adapter){
+    public static View.OnClickListener sendButtonListener(final MyActivity activity, final ChatAdapter adapter){
         // stuff to do when button is clicked
         return new View.OnClickListener() {
             @Override
@@ -19,7 +21,9 @@ public class ClickListeners {
                     Toast.makeText(activity, "You didn't type anything in!", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                adapter.addChat(new ChatModel(MyActivity.username, input.getText().toString(), MyActivity.userId));
+                ChatModel newMessage = new ChatModel(MyActivity.username, input.getText().toString(), MyActivity.userId);
+                adapter.addChat(newMessage);
+                activity.db.addMessageToDatabase(newMessage);
                 input.setText("");
             }
         };

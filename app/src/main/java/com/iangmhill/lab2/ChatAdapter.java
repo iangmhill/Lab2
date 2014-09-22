@@ -1,4 +1,4 @@
-package com.example.michael.lab2;
+package com.iangmhill.lab2;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;

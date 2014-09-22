@@ -1,4 +1,4 @@
-package com.example.michael.lab2;
+package com.iangmhill.lab2;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -17,11 +17,18 @@ public class MyActivity extends Activity {
     ChatAdapter chatAdapter;
     public static String username = "default";
     public static String userId = "0001";
-
+    HandlerDatabase db;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_my); // inflater (wat?)
+
+        /**
+         *  Database
+         */
+        db = new HandlerDatabase(this);
+        db.open();
+
 
         if (username.equals("default")){
             Toast.makeText(this, "You are signed in as default! Click the user icon to change your name!", Toast.LENGTH_SHORT).show();
@@ -34,7 +41,7 @@ public class MyActivity extends Activity {
 
     private void getChats(){
         // make list of chats of type ModelChat
-        List<ChatModel> newChats = new ArrayList<ChatModel>();
+        ArrayList<ChatModel> newChats = this.db.getAllMessages();
         if (chatAdapter == null)
             chatAdapter = new ChatAdapter(this, new ArrayList<ChatModel>(), R.layout.chat_item);
         chatAdapter.addChats(newChats);
