@@ -3,6 +3,7 @@ package com.iangmhill.lab2;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.text.format.DateUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,9 +19,9 @@ import java.util.List;
 public class ChatAdapter extends ArrayAdapter {
     private List<ChatModel> chats = new ArrayList<ChatModel>();
     private int resource;
-    private Context context;
+    private MyActivity context;
 
-    public ChatAdapter(Context context, List<ChatModel> chats, int resource) {
+    public ChatAdapter(MyActivity context, List<ChatModel> chats, int resource) {
         super(context, R.layout.chat_item);
         // make context accessible from outside adapter (k?)
         this.context = context;
@@ -47,7 +48,7 @@ public class ChatAdapter extends ArrayAdapter {
             // inflater takes id of chat item and parent view
             convertView = inflater.inflate(resource, parent, false);
 
-            // holder keeps all found views from last time (we can update the views directly without re-finding them)
+            // holder keeps all found views from last timestamp (we can update the views directly without re-finding them)
             chatHolder = new ChatHolder();
 
             // find elements in chat item, cast to views
@@ -71,9 +72,10 @@ public class ChatAdapter extends ArrayAdapter {
     }
 
     private void fillViews(ChatHolder holder, ChatModel chat) {
-        holder.name.setText(chat.sender);
-        holder.body.setText(chat.body);
-        holder.time.setText(formatTime(chat.time));
+        holder.name.setText(chat.name);
+        holder.body.setText(chat.message);
+        Log.e("TIMESTAMP",chat.timestamp);
+        holder.time.setText(formatTime(Long.parseLong(chat.timestamp)));
     }
 
     private String formatTime(long time) {
@@ -94,6 +96,31 @@ public class ChatAdapter extends ArrayAdapter {
 
     public void addChat(ChatModel chat) {
         this.chats.add(chat);
+        notifyDataSetChanged();
+    }
+
+    public ChatModel getChat(int index) {
+        if(index + 1 > this.chats.size() || index < 0) {
+            return null;
+        } else {
+            return this.chats.get(index);
+        }
+    }
+
+    public String getChatMessage(int index){
+        return this.chats.get(index).message;
+    }
+
+    public void deleteChat(ChatModel chat){
+        this.chats.remove(chat);
+        context.db.deleteMessageById(chat.timestamp);
+        notifyDataSetChanged();
+    }
+
+    public void updateChatMessage(int index, String newMessage) {
+        ChatModel chat = getChat(index);
+        chat.message = newMessage;
+        context.db.updateChatByTimestamp(chat, chat.timestamp);
         notifyDataSetChanged();
     }
 }

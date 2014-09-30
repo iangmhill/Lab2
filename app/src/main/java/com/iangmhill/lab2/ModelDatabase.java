@@ -13,10 +13,9 @@ public class ModelDatabase extends SQLiteOpenHelper {
     public static final String TABLE_NAME = "messages";
 
     //Table Fields
-    public static final String MESSAGE_TIME = "time";
-    public static final String MESSAGE_SENDER = "sender";
-    public static final String MESSAGE_BODY = "body";
-    public static final String MESSAGE_USERID = "userid";
+    public static final String MESSAGE_TIME = "timestamp";
+    public static final String MESSAGE_SENDER = "name";
+    public static final String MESSAGE_BODY = "message";
 
     //Database Info
     private static final String DATABASE_NAME = "MessageDatabase";
@@ -27,8 +26,7 @@ public class ModelDatabase extends SQLiteOpenHelper {
             + TABLE_NAME + "("
             + MESSAGE_TIME + " TEXT NOT NULL UNIQUE, "
             + MESSAGE_SENDER + " TEXT NOT NULL, "
-            + MESSAGE_BODY + " TEXT NOT NULL, "
-            + MESSAGE_USERID + " TEXT NOT NULL );";
+            + MESSAGE_BODY + " TEXT NOT NULL );";
 
     //Default Constructor
     public ModelDatabase(Context context){

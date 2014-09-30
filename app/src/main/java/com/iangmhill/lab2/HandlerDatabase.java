@@ -7,6 +7,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import java.util.ArrayList;
 
@@ -21,8 +22,7 @@ public class HandlerDatabase {
     private String[] allColumns = {
             ModelDatabase.MESSAGE_TIME,
             ModelDatabase.MESSAGE_SENDER,
-            ModelDatabase.MESSAGE_BODY,
-            ModelDatabase.MESSAGE_USERID
+            ModelDatabase.MESSAGE_BODY
     };
 
     //Public Constructor - create connection to Database
@@ -35,25 +35,25 @@ public class HandlerDatabase {
      */
     public void addMessageToDatabase(ChatModel message){
         ContentValues values = new ContentValues();
-        values.put(ModelDatabase.MESSAGE_TIME, Long.toString(message.time));
-        values.put(ModelDatabase.MESSAGE_SENDER, message.sender);
-        values.put(ModelDatabase.MESSAGE_BODY, message.body);
-        values.put(ModelDatabase.MESSAGE_USERID, message.userId);
-        database.insertWithOnConflict(ModelDatabase.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_IGNORE);
+        values.put(ModelDatabase.MESSAGE_TIME, message.timestamp);
+        values.put(ModelDatabase.MESSAGE_SENDER, message.name);
+        values.put(ModelDatabase.MESSAGE_BODY, message.message);
+        database.insert(ModelDatabase.TABLE_NAME, null, values);
+        Log.e("ADD", "Test1");
     }
     public void updateMessage(ChatModel message){
         ContentValues values = new ContentValues();
-        values.put(ModelDatabase.MESSAGE_TIME, Long.toString(message.time));
-        values.put(ModelDatabase.MESSAGE_SENDER, message.sender);
-        values.put(ModelDatabase.MESSAGE_BODY, message.body);
-        values.put(ModelDatabase.MESSAGE_USERID, message.userId);
-        database.update(ModelDatabase.TABLE_NAME, values, ModelDatabase.MESSAGE_TIME + " like '%" + Long.toString(message.time) + "%'", null);
+        values.put(ModelDatabase.MESSAGE_TIME, message.timestamp);
+        values.put(ModelDatabase.MESSAGE_SENDER, message.name);
+        values.put(ModelDatabase.MESSAGE_BODY, message.message);
+        database.update(ModelDatabase.TABLE_NAME, values, ModelDatabase.MESSAGE_TIME + " like '%" + message.timestamp + "%'", null);
     }
 
     /**
      * Get
      */
     public ArrayList<ChatModel> getAllMessages(){
+        Log.e("GET","YAY");
         return sweepCursor(database.query(ModelDatabase.TABLE_NAME, allColumns, null, null, null, null, null));
     }
     public ChatModel getMessageById(Long time){
@@ -68,10 +68,10 @@ public class HandlerDatabase {
     /**
      * Delete
      */
-    public void deleteMessageById(Long time){
+    public void deleteMessageById(String time){
         database.delete(
                 ModelDatabase.TABLE_NAME,
-                ModelDatabase.MESSAGE_TIME + " like '%" + Long.toString(time) + "%'",
+                ModelDatabase.MESSAGE_TIME + " like '%" + time + "%'",
                 null
         );
     }
@@ -88,17 +88,29 @@ public class HandlerDatabase {
         while (!cursor.isAfterLast()){
             //Get the message
             ChatModel message = new ChatModel(
-                    Long.parseLong(cursor.getString(0)),
                     cursor.getString(1),
                     cursor.getString(2),
-                    cursor.getString(3)
+                    cursor.getString(0)
             );
             //Add the message
             messages.add(message);
+            Log.e("MESSAGE",message.message);
             //Go on to the next Kitty
             cursor.moveToNext();
         }
         return messages;
+    }
+
+    public void updateChatByTimestamp(ChatModel chat, String timestamp){
+        ContentValues values = new ContentValues();
+        values.put(ModelDatabase.MESSAGE_SENDER, chat.name);
+        values.put(ModelDatabase.MESSAGE_BODY, chat.message);
+        values.put(ModelDatabase.MESSAGE_TIME, chat.timestamp);
+        database.update(
+                ModelDatabase.TABLE_NAME,
+                values,
+                ModelDatabase.MESSAGE_TIME + " like '%" + timestamp + "%'",
+                null);
     }
 
     //Get Writable Database - open the database

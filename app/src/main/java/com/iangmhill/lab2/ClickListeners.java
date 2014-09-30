@@ -4,12 +4,78 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.Toast;
 
 import java.util.ArrayList;
 
 public class ClickListeners {
+
+    public static AlertDialog.Builder getEditDialogBuilder(final Activity activity, final ChatAdapter chatAdapter, final long id) {
+        final EditText inputMessage = new EditText(activity);
+        inputMessage.setText(chatAdapter.getChatMessage((int) id));
+        return new AlertDialog.Builder(activity)
+                .setTitle("Edit Message #" + id)
+                .setMessage("Modify message information below:")
+                .setView(inputMessage)
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.dismiss();
+                    }
+                }).setPositiveButton("Save", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        String newMessage = inputMessage.getText().toString();
+                        if (newMessage.equals("")) {
+                            Toast.makeText(activity, "Discarded; can't be blank!", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        chatAdapter.updateChatMessage((int) id, newMessage);
+                        dialogInterface.dismiss();
+                    }
+                });
+    }
+
+    public static AdapterView.OnItemClickListener clickChatListener(final Activity activity,
+                                                                    final ChatAdapter chatAdapter){
+        // stuff to do when chat message is clicked
+        return new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, final long id) {
+                final ChatModel chat = chatAdapter.getChat((int) id);
+                new AlertDialog.Builder(activity)
+                        .setTitle("Message #" + id)
+                        .setMessage("What would you like to do with this message")
+                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                dialogInterface.dismiss();
+                            }
+                        })
+                        .setNeutralButton("Edit", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                dialogInterface.dismiss();
+                                getEditDialogBuilder(activity, chatAdapter, id).show();
+                            }
+                        })
+                        .setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                if (chat == null) {
+                                    Toast.makeText(activity, "Discarded; invalid index!", Toast.LENGTH_SHORT).show();
+                                    return;
+                                }
+                                chatAdapter.deleteChat(chat);
+                                Toast.makeText(activity, "Deleted message #" + id + "!", Toast.LENGTH_SHORT).show();
+                                dialogInterface.dismiss();
+                            }
+                        }).show();
+            }
+        };
+    }
 
     public static View.OnClickListener sendButtonListener(final MyActivity activity, final ChatAdapter adapter){
         // stuff to do when button is clicked
@@ -21,9 +87,10 @@ public class ClickListeners {
                     Toast.makeText(activity, "You didn't type anything in!", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                ChatModel newMessage = new ChatModel(MyActivity.username, input.getText().toString(), MyActivity.userId);
-                adapter.addChat(newMessage);
+                ChatModel newMessage = new ChatModel(MyActivity.username, input.getText().toString());
+                //adapter.addChat(newMessage);
                 activity.db.addMessageToDatabase(newMessage);
+                activity.myFirebaseRef.child(newMessage.timestamp).setValue(newMessage);
                 input.setText("");
             }
         };

@@ -10,14 +10,21 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.firebase.client.ChildEventListener;
+import com.firebase.client.DataSnapshot;
+import com.firebase.client.Firebase;
+import com.firebase.client.FirebaseError;
+import com.firebase.client.Query;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class MyActivity extends Activity {
     ChatAdapter chatAdapter;
     public static String username = "default";
-    public static String userId = "0001";
-    HandlerDatabase db;
+    public HandlerDatabase db;
+    public static Firebase myFirebaseRef = new Firebase("https://earlgrey.firebaseio.com/chatroom");
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -28,28 +35,58 @@ public class MyActivity extends Activity {
          */
         db = new HandlerDatabase(this);
         db.open();
+        Query postsQuery = myFirebaseRef.limit(10);
+        postsQuery.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot snapshot, String previousChild) {
+                HashMap<String,String> postInfo = (HashMap) snapshot.getValue();
+                chatAdapter.addChat(new ChatModel(postInfo.get("name"),postInfo.get("message"),postInfo.get("timestamp")));
+                chatAdapter.notifyDataSetChanged();
+            }
+            public void onChildRemoved(DataSnapshot snapshot){
 
+            }
+            public void onChildChanged(DataSnapshot dataSnapshot, java.lang.String s){
+
+            }
+            public void onChildMoved(DataSnapshot dataSnapshot, java.lang.String s){
+
+            }
+
+            public void onCancelled(FirebaseError firebaseError){
+
+            }
+
+        });
 
         if (username.equals("default")){
             Toast.makeText(this, "You are signed in as default! Click the user icon to change your name!", Toast.LENGTH_SHORT).show();
         }
-
         getChats(); // run other setup stuff
         setupViews();
-        Log.i(MyActivity.class.getSimpleName(), "Hello, World!");
     }
 
     private void getChats(){
         // make list of chats of type ModelChat
         ArrayList<ChatModel> newChats = this.db.getAllMessages();
-        if (chatAdapter == null)
+
+        if (chatAdapter == null) {
             chatAdapter = new ChatAdapter(this, new ArrayList<ChatModel>(), R.layout.chat_item);
-        chatAdapter.addChats(newChats);
+        }
+        //chatAdapter.addChats(newChats);
+        //chatAdapter.notifyDataSetChanged();
+        try {
+            Log.e("GET", newChats.get(0).message);
+        }catch(java.lang.IndexOutOfBoundsException e){
+            Log.e("GET", "NO MESSAGES");
+        }
+
     }
 
     private void setupViews(){
         ListView chatList = (ListView) findViewById(R.id.main_output_layout);
         chatList.setAdapter(chatAdapter);
+        chatList.setOnItemClickListener(ClickListeners.clickChatListener(this, chatAdapter));
 
         final EditText input = (EditText) findViewById(R.id.main_input_entry);
         input.clearFocus();
